@@ -115,17 +115,19 @@ func replaceContentofFile(at path: URL,
     return
   }
   for (target, replacement) in substitutions {
-    fileContents = fileContents.replacingOccurrences(of: target, with: replacement)
+    fileContents.replace(target, with: replacement)
   }
   
   switch fixHeader(fileContents) {
   case .unchanged:
     break
   case .changed(let newContents):
-    try newContents.write(to: path, atomically: true, encoding: .utf8)
+    fileContents = newContents
   case .error:
     fputs("Header too long: \(path.relativePath)\n", stderr)
   }
+  
+  try fileContents.write(to: path, atomically: true, encoding: .utf8)
 }
 
 enum HeaderResult {
